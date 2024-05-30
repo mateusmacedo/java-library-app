@@ -1,18 +1,19 @@
 package com.mmda.library.domain.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mmda.core.repository.SearchException;
@@ -73,6 +74,24 @@ class BookSearchTest {
 
         // Assert
         assertEquals("Error occurred during search", exception.getMessage());
+        verify(repository).search(criteria);
+    }
+
+    @Test
+    void search_shouldReturnSearchExceptionWithCause_whenRepositoryThrowsException() throws SearchException {
+        // Arrange
+        String title = "Title";
+        BookSearchCriteria criteria = new BookSearchCriteria(title, null, null, null);
+        RuntimeException expectedCause = new RuntimeException("Cause");
+        doThrow(new SearchException("Error occurred during search", expectedCause)).when(repository).search(criteria);
+        SearchException exception = assertThrows(SearchException.class, () -> {
+            // Act
+            bookSearch.search(criteria);
+        });
+
+        // Assert
+        assertEquals("Error occurred during search", exception.getMessage());
+        assertEquals(expectedCause, exception.getCause());
         verify(repository).search(criteria);
     }
 

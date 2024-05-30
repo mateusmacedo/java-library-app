@@ -1,25 +1,27 @@
 package com.mmda.library.domain.service;
 
-import java.util.HashSet;
-
-import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.HashSet;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mmda.core.factory.Factory;
 import com.mmda.core.factory.FactoryException;
+import com.mmda.core.repository.PersistenceException;
 import com.mmda.core.repository.PersistenceRepository;
 import com.mmda.core.validation.ValidationException;
 import com.mmda.core.validation.Validator;
@@ -86,6 +88,37 @@ class BookRegistrationTest {
     }
 
     @Test
+    void registerBook_shouldReturnValidationExceptionWithCause_whenDtoIsInvalid() {
+        // Arrange
+        String title = "Title";
+        Author author = new Author("Name", "Surname");
+        HashSet<Author> authors = new HashSet<>();
+        authors.add(author);
+        Isbn isbn = new Isbn("1234567890123");
+        Category category = new Category("Category");
+        HashSet<Category> categories = new HashSet<>();
+        categories.add(category);
+        Integer publicationYear = 2021;
+
+        BookRegistrationDto dto = new BookRegistrationDto(
+                title, authors, isbn, categories, publicationYear);
+        RuntimeException expectedCause = new RuntimeException("Cause");
+        doThrow(new ValidationException("Invalid DTO", expectedCause)).when(validator).validate(dto);
+
+        // Act
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> bookRegistration.registerBook(dto));
+
+        // Assert
+        assertEquals("Invalid DTO", exception.getMessage());
+        assertEquals(expectedCause, exception.getCause());
+        verify(validator).validate(dto);
+        verify(factory, never()).create(any(String.class), any(HashSet.class), any(Isbn.class),
+                any(HashSet.class), any(Integer.class));
+        verify(repository, never()).save(any(Book.class));
+    }
+
+    @Test
     void registerBook_shouldReturnFactoryException_whenFactoryFails() {
         // Arrange
         String title = "Title";
@@ -137,14 +170,50 @@ class BookRegistrationTest {
         doNothing().when(validator).validate(any(BookRegistrationDto.class));
         when(factory.create(any(String.class), any(HashSet.class), any(Isbn.class),
                 any(HashSet.class), any(Integer.class))).thenReturn(expectedBook);
-        when(repository.save(any(Book.class))).thenThrow(new RuntimeException("Repository error"));
+        PersistenceException expectedException = new PersistenceException("Repository error");
+        when(repository.save(any(Book.class))).thenThrow(expectedException);
 
         // Act
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        RuntimeException exception = assertThrows(PersistenceException.class,
                 () -> bookRegistration.registerBook(dto));
-
         // Assert
-        assertEquals("Repository error", exception.getMessage());
+        assertEquals(expectedException, exception);
+        verify(validator).validate(dto);
+        verify(factory).create(title, authors, isbn, categories, publicationYear);
+        verify(repository).save(expectedBook);
+    }
+
+    @Test
+    void registerBook_shouldReturnPersistenceExceptionWithCause_whenRepositoryFails() {
+        // Arrange
+        String title = "Title";
+        Author author = new Author("Name", "Surname");
+        HashSet<Author> authors = new HashSet<>();
+        authors.add(author);
+        Isbn isbn = new Isbn("1234567890123");
+        Category category = new Category("Category");
+        HashSet<Category> categories = new HashSet<>();
+        categories.add(category);
+        Integer publicationYear = 2021;
+
+        BookRegistrationDto dto = new BookRegistrationDto(
+                title, authors, isbn, categories, publicationYear);
+        Book expectedBook = new Book(
+                title, authors, isbn, categories, publicationYear);
+
+        doNothing().when(validator).validate(any(BookRegistrationDto.class));
+        when(factory.create(any(String.class), any(HashSet.class), any(Isbn.class),
+                any(HashSet.class), any(Integer.class))).thenReturn(expectedBook);
+        RuntimeException expectedCause = new RuntimeException("Cause");
+        PersistenceException expectedException = new PersistenceException("Repository error", expectedCause);
+        when(repository.save(any(Book.class))).thenThrow(expectedException);
+
+        // Act
+        RuntimeException exception = assertThrows(PersistenceException.class,
+                () -> bookRegistration.registerBook(dto));
+        // Assert
+        assertEquals(expectedException, exception);
+        assertEquals(expectedCause, exception.getCause());
         verify(validator).validate(dto);
         verify(factory).create(title, authors, isbn, categories, publicationYear);
         verify(repository).save(expectedBook);
@@ -177,7 +246,11 @@ class BookRegistrationTest {
         Book resultBook = bookRegistration.registerBook(dto);
 
         // Assert
-        assertEquals(expectedBook, resultBook);
+        assertEquals(expectedBook.getTitle(), resultBook.getTitle());
+        assertEquals(expectedBook.getAuthors(), resultBook.getAuthors());
+        assertEquals(expectedBook.getIsbn(), resultBook.getIsbn());
+        assertEquals(expectedBook.getCategories(), resultBook.getCategories());
+        assertEquals(expectedBook.getPublicationYear(), resultBook.getPublicationYear());
         verify(validator).validate(dto);
         verify(factory).create(title, authors, isbn, categories, publicationYear);
         verify(repository).save(expectedBook);
