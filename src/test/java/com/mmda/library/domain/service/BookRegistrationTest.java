@@ -57,6 +57,7 @@ public class BookRegistrationTest {
 
     @Test
     public void registerBook_shouldReturnValidationException_whenDtoIsInvalid() {
+        // Arrange
         String title = "Title";
         Author author = new Author("Name", "Surname");
         HashSet<Author> authors = new HashSet<>();
@@ -72,9 +73,11 @@ public class BookRegistrationTest {
 
         doThrow(new ValidationException("Invalid DTO")).when(validator).validate(dto);
 
+        // Act
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> bookRegistration.registerBook(dto));
 
+        // Assert
         assertEquals("Invalid DTO", exception.getMessage());
         verify(validator).validate(dto);
         verify(factory, never()).create(any(String.class), any(HashSet.class), any(Isbn.class),
@@ -84,6 +87,7 @@ public class BookRegistrationTest {
 
     @Test
     public void registerBook_shouldReturnFactoryException_whenFactoryFails() {
+        // Arrange
         String title = "Title";
         Author author = new Author("Name", "Surname");
         HashSet<Author> authors = new HashSet<>();
@@ -101,9 +105,11 @@ public class BookRegistrationTest {
         when(factory.create(any(String.class), any(HashSet.class), any(Isbn.class),
                 any(HashSet.class), any(Integer.class))).thenThrow(new FactoryException("Factory error"));
 
+        // Act
         RuntimeException exception = assertThrows(FactoryException.class,
                 () -> bookRegistration.registerBook(dto));
 
+        // Assert
         assertEquals("Factory error", exception.getMessage());
         verify(validator).validate(dto);
         verify(factory).create(title, authors, isbn, categories, publicationYear);
@@ -112,6 +118,7 @@ public class BookRegistrationTest {
 
     @Test
     public void registerBook_shouldReturnPersistenceException_whenRepositoryFails() {
+        // Arrange
         String title = "Title";
         Author author = new Author("Name", "Surname");
         HashSet<Author> authors = new HashSet<>();
@@ -132,9 +139,11 @@ public class BookRegistrationTest {
                 any(HashSet.class), any(Integer.class))).thenReturn(expectedBook);
         when(repository.save(any(Book.class))).thenThrow(new RuntimeException("Repository error"));
 
+        // Act
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> bookRegistration.registerBook(dto));
 
+        // Assert
         assertEquals("Repository error", exception.getMessage());
         verify(validator).validate(dto);
         verify(factory).create(title, authors, isbn, categories, publicationYear);
@@ -143,6 +152,7 @@ public class BookRegistrationTest {
 
     @Test
     public void registerBook_shouldReturnBook_whenDtoIsValid() {
+        // Arrange
         String title = "Title";
         Author author = new Author("Name", "Surname");
         HashSet<Author> authors = new HashSet<>();
@@ -163,8 +173,10 @@ public class BookRegistrationTest {
                 any(HashSet.class), any(Integer.class))).thenReturn(expectedBook);
         when(repository.save(any(Book.class))).thenReturn(expectedBook);
 
+        // Act
         Book resultBook = bookRegistration.registerBook(dto);
 
+        // Assert
         assertEquals(expectedBook, resultBook);
         verify(validator).validate(dto);
         verify(factory).create(title, authors, isbn, categories, publicationYear);
