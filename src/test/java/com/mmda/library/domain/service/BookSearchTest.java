@@ -1,19 +1,18 @@
 package com.mmda.library.domain.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mmda.core.repository.SearchException;
@@ -22,7 +21,7 @@ import com.mmda.library.domain.criteria.BookSearchCriteria;
 import com.mmda.library.domain.model.Book;
 
 @ExtendWith(MockitoExtension.class)
-public class BookSearchTest {
+class BookSearchTest {
     @Mock
     private SearchRepository<Book> repository;
 
@@ -46,7 +45,7 @@ public class BookSearchTest {
     }
 
     @Test
-    public void search_shouldReturnBook_whenCriteriaIsValid() throws SearchException {
+    void search_shouldReturnBook_whenCriteriaIsValid() throws SearchException {
         // Arrange
         String title = "Title";
         BookSearchCriteria criteria = new BookSearchCriteria(title, null, null, null);
@@ -61,7 +60,7 @@ public class BookSearchTest {
     }
 
     @Test
-    public void search_shouldReturnSearchException_whenRepositoryThrowsException() throws SearchException {
+    void search_shouldReturnSearchException_whenRepositoryThrowsException() throws SearchException {
         // Arrange
         String title = "Title";
         BookSearchCriteria criteria = new BookSearchCriteria(title, null, null, null);
@@ -78,7 +77,7 @@ public class BookSearchTest {
     }
 
     @Test
-    public void searchAll_shouldReturnBooks_whenCriteriaIsValid() throws SearchException {
+    void searchAll_shouldReturnBooks_whenCriteriaIsValid() throws SearchException {
         // Arrange
         String title = "Title";
         BookSearchCriteria criteria = new BookSearchCriteria(title, null, null, null);
@@ -93,7 +92,7 @@ public class BookSearchTest {
     }
 
     @Test
-    public void searchAll_shouldReturnSearchException_whenRepositoryThrowsException() throws SearchException {
+    void searchAll_shouldReturnSearchException_whenRepositoryThrowsException() throws SearchException {
         // Arrange
         String title = "Title";
         BookSearchCriteria criteria = new BookSearchCriteria(title, null, null, null);

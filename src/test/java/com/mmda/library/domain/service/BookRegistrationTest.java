@@ -30,7 +30,7 @@ import com.mmda.library.domain.valueobject.Category;
 import com.mmda.library.domain.valueobject.Isbn;
 
 @ExtendWith(MockitoExtension.class)
-public class BookRegistrationTest {
+class BookRegistrationTest {
 
     @Mock
     private Validator<BookRegistrationDto> validator;
@@ -56,7 +56,7 @@ public class BookRegistrationTest {
     }
 
     @Test
-    public void registerBook_shouldReturnValidationException_whenDtoIsInvalid() {
+    void registerBook_shouldReturnValidationException_whenDtoIsInvalid() {
         // Arrange
         String title = "Title";
         Author author = new Author("Name", "Surname");
@@ -86,7 +86,7 @@ public class BookRegistrationTest {
     }
 
     @Test
-    public void registerBook_shouldReturnFactoryException_whenFactoryFails() {
+    void registerBook_shouldReturnFactoryException_whenFactoryFails() {
         // Arrange
         String title = "Title";
         Author author = new Author("Name", "Surname");
@@ -117,7 +117,7 @@ public class BookRegistrationTest {
     }
 
     @Test
-    public void registerBook_shouldReturnPersistenceException_whenRepositoryFails() {
+    void registerBook_shouldReturnPersistenceException_whenRepositoryFails() {
         // Arrange
         String title = "Title";
         Author author = new Author("Name", "Surname");
@@ -151,7 +151,7 @@ public class BookRegistrationTest {
     }
 
     @Test
-    public void registerBook_shouldReturnBook_whenDtoIsValid() {
+    void registerBook_shouldReturnBook_whenDtoIsValid() {
         // Arrange
         String title = "Title";
         Author author = new Author("Name", "Surname");

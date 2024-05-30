@@ -43,7 +43,7 @@ class GenericFactoryTest {
     }
 
     @Test
-    public void create_shouldReturnInstance_whenParametersAreCorrect() {
+    void create_shouldReturnInstance_whenParametersAreCorrect() {
         // Act
         TestClass instance = factory.create(123, "Hello World");
 
@@ -54,7 +54,7 @@ class GenericFactoryTest {
     }
 
     @Test
-    public void create_shouldReturnFactoryExceptions_whenIncorrectParameters() {
+    void create_shouldReturnFactoryExceptions_whenIncorrectParameters() {
         // Arrange and Act
         exception = assertThrows(FactoryException.class, () -> factory.create("Hello World", 123));
 
@@ -64,7 +64,7 @@ class GenericFactoryTest {
     }
 
     @Test
-    public void create_shouldReturnFactoryException_whenNoMatchingConstructor() {
+    void create_shouldReturnFactoryException_whenNoMatchingConstructor() {
         // Arrange and Act
         exception = assertThrows(FactoryException.class, () -> factory.create(123));
 
