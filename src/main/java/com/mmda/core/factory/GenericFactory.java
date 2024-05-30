@@ -21,7 +21,7 @@ public class GenericFactory<T> implements Factory<T> {
                 }
             }
             throw new FactoryException("No matching constructor found for parameters");
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
             throw new FactoryException("Error creating instance of " + clazz.getName(), e);
         }
     }
